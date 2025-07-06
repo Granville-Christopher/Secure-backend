@@ -1,0 +1,100 @@
+name: 🚀 CI & Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: 🧪 Run Tests
+
+    steps:
+      - name: 📁 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: ✅ Run Tests
+        run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    name: 🚀 Deploy to Production
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📁 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup SSH Key
+        run: |
+          echo "$SSH_PRIVATE_KEY" > key.pem
+          chmod 600 key.pem
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+
+      - name: 🚀 Deploy via SSH
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no deploy@your.server.ip << 'EOF'
+            set -e
+            echo "🔄 Pulling latest code..."
+            cd /var/www/yourapp
+            git reset --hard
+            git pull origin main
+            echo "🔁 Restarting app with PM2..."
+            pm2 restart all
+            echo "✅ Deployment completed!"
+          EOF
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+
+      - name: ❌ Rollback on Failure
+        if: failure()
+        run: |
+          echo "🚨 Deployment failed. Reverting..."
+          ssh -i key.pem -o StrictHostKeyChecking=no deploy@your.server.ip << 'EOF'
+            cd /var/www/yourapp
+            git reset --hard HEAD~1
+            pm2 restart all
+          EOF
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+              
+      - name: 📧 Notify on Success
+        if: success()
+        run: |
+          npm install nodemailer
+          node scripts/send-email.js
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_SUBJECT: "✅ Deployment Successful"
+          EMAIL_BODY: "Your Node.js app was deployed successfully!"
+        
+      - name: ❌ Notify on Failure
+        if: failure()
+        run: |
+          npm install nodemailer
+          node scripts/send-email.js
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_SUBJECT: "❌ Deployment Failed"
+          EMAIL_BODY: "There was an error deploying your Node.js app."
+

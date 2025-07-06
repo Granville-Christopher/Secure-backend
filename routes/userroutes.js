@@ -10,7 +10,7 @@ const {
 } = require("../controllers/usercontroller");
 
 router.get("/", authenticate, authorize("user"), (req, res) => {
-  res.render("user/index", {
+  res.render("user/index", {    
     title: "Home",
     user: req.user,
   });
