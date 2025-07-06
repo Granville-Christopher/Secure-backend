@@ -96,5 +96,5 @@ jobs:
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           EMAIL_SUBJECT: "❌ Deployment Failed"
-          EMAIL_BODY: "There was an error deploying your Node.js app."
+          EMAIL_BODY: "There was an error deployin your Node.js app."
 
