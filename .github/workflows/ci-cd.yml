@@ -42,10 +42,10 @@ jobs:
 
       - name: 🔧 Setup SSH Key
         run: |
-          echo "$SSH_PRIVATE_KEY" > key.pem
+          echo "$SSH_KEY" > key.pem
           chmod 600 key.pem
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
 
       - name: 🚀 Deploy via SSH
         run: |
@@ -60,7 +60,7 @@ jobs:
             echo "✅ Deployment completed!"
           EOF
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
 
       - name: ❌ Rollback on Failure
         if: failure()
@@ -68,11 +68,11 @@ jobs:
           echo "🚨 Deployment failed. Reverting..."
           ssh -i key.pem -o StrictHostKeyChecking=no deploy@your.server.ip << 'EOF'
             cd /var/www/yourapp
-            git reset --hard HEAD~1
+            git reset --hard ORIG_HEAD
             pm2 restart all
           EOF
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
               
       - name: 📧 Notify on Success
         if: success()
@@ -91,7 +91,6 @@ jobs:
         run: |
           npm install nodemailer
           node config/send-nodemail.js
-
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}

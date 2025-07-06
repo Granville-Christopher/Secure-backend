@@ -75,3 +75,5 @@ jobs:
       # Optional: Microsoft Security DevOps
       - name: 🛡️ Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1.6.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.MS_TOKEN_GIT }}
