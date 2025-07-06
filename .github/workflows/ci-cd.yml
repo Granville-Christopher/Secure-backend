@@ -30,50 +30,6 @@ jobs:
       - name: ✅ Run Tests
         run: npm test
 
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    name: 🚀 Deploy to Production
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: 📁 Checkout Code
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup SSH Key
-        run: |
-          echo "$SSH_KEY" > key.pem
-          chmod 600 key.pem
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-
-      - name: 🚀 Deploy via SSH
-        run: |
-          ssh -i key.pem -o StrictHostKeyChecking=no deploy@your.server.ip << 'EOF'
-            set -e
-            echo "🔄 Pulling latest code..."
-            cd /var/www/yourapp
-            git reset --hard
-            git pull origin main
-            echo "🔁 Restarting app with PM2..."
-            pm2 restart all
-            echo "✅ Deployment completed!"
-          EOF
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-
-      - name: ❌ Rollback on Failure
-        if: failure()
-        run: |
-          echo "🚨 Deployment failed. Reverting..."
-          ssh -i key.pem -o StrictHostKeyChecking=no deploy@your.server.ip << 'EOF'
-            cd /var/www/yourapp
-            git reset --hard ORIG_HEAD
-            pm2 restart all
-          EOF
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-              
       - name: 📧 Notify on Success
         if: success()
         run: |
@@ -83,9 +39,9 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
-          EMAIL_SUBJECT: "✅ Deployment Successful"
-          EMAIL_BODY: "Your Node.js app was deployed successfully!"
-        
+          EMAIL_SUBJECT: "✅ Tests Passed"
+          EMAIL_BODY: "Your CI test pipeline passed successfully on branch ${{ github.ref_name }}."
+
       - name: ❌ Notify on Failure
         if: failure()
         run: |
@@ -95,6 +51,6 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
-          EMAIL_SUBJECT: "❌ Deployment Failed"
-          EMAIL_BODY: "There was an error deployin your Node.js app."
+          EMAIL_SUBJECT: "❌ Tests Failed"
+          EMAIL_BODY: "Your CI test pipeline failed on branch ${{ github.ref_name }}. Please check logs."
 
