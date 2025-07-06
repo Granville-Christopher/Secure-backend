@@ -15,52 +15,63 @@
 # Please note this workflow do not integrate your GitHub Org with Microsoft Defender For DevOps. You have to create an integration
 # and provide permission before this can report data back to azure.
 # Read the official documentation here : https://learn.microsoft.com/en-us/azure/defender-for-cloud/quickstart-onboard-github
-
-name: "Microsoft Defender For Devops"
+name: 🧪 CI - Test Only (Local Dev)
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+      - dev
   pull_request:
-    branches: ["main"]
-  schedule:
-    - cron: "31 19 * * 3"
+    branches:
+      - main
+      - dev
 
-permissions:
-    contents: read
-    id-token: write
-    security-events: write
 jobs:
-  MSDO:
-    runs-on: windows-latest
-
-    permissions:
-      contents: read
-      id-token: write
-      security-events: write
+  test:
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: 📁 Checkout Code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          dotnet-version: |
-            5.0.x
-            6.0.x
+          node-version: 18
 
-      - name: Run Microsoft Security DevOps
-        id: msdo
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: ✅ Run Tests
+        run: npm test
+
+      # ✅ Notification on success
+      - name: 📧 Notify Success
+        if: success()
+        run: |
+          npm install nodemailer
+          node config/send-nodemail.js
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_SUBJECT: "✅ CI Passed"
+          EMAIL_BODY: "Your CI test pipeline passed successfully on branch ${{ github.ref_name }}."
+
+      # ❌ Notification on failure
+      - name: 📧 Notify Failure
+        if: failure()
+        run: |
+          npm install nodemailer
+          node config/send-nodemail.js
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_SUBJECT: "❌ CI Failed"
+          EMAIL_BODY: "Your CI test pipeline failed on branch ${{ github.ref_name }}. Please check logs."
+
+      # Optional: Microsoft Security DevOps
+      - name: 🛡️ Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1.6.0
-
-      - name: Upload results to Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: ${{ steps.msdo.outputs.sarifFile }}
-
-      - name: 📄 Upload Defender Scan Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: Defender-Findings
-          path: |
-            .gdn/msdo.sarif
-            *-Findings-List.pdf

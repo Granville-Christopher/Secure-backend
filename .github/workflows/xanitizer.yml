@@ -73,9 +73,10 @@ jobs:
 
       # Run Xanitizer Analysis
       - name: 🛡️ Run Xanitizer Security Analysis
-        uses: RIGS-IT/xanitizer-action@main
+        uses: RIGS-IT/xanitizer-action@87d13138fb113b727cbe040c744a15a2b4fe5316
         with:
           license: ${{ secrets.XANITIZER_LICENSE }}
+
 
       # Upload Reports as Artifacts
       - name: 📤 Upload Xanitizer Reports
