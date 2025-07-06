@@ -76,8 +76,6 @@ jobs:
         uses: RIGS-IT/xanitizer-action@87d13138fb113b727cbe040c744a15a2b4fe5316
         with:
           license: ${{ secrets.XANITIZER_LICENSE }}
-          exclude: |
-            **/node_modules/nodemon/bin/windows-kill.exe
 
       # Upload Reports as Artifacts
       - name: 📤 Upload Xanitizer Reports

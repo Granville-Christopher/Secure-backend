@@ -29,5 +29,9 @@
     "sequelize": "^6.37.7",
     "synk": "^0.0.2",
     "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "jest": "^30.0.4",
+    "supertest": "^7.1.1"
   }
 }
