@@ -74,7 +74,9 @@ jobs:
 
       # Optional: Microsoft Security DevOps
       - name: 🔒 Force TLS 1.2+
-        run: echo "NODE_OPTIONS=--tls-min-v1.2" >> $GITHUB_ENV
+        shell: pwsh
+        run: |
+          Add-Content -Path $env:GITHUB_ENV -Value 'NODE_OPTIONS=--tls-min-v1.2'
 
       - name: 🛡️ Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1.6.0
