@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6 text-center">User Login</h2>
+    <form id="loginForm" class="space-y-6">
+      <div>
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-700">Email</label>
+        <input type="email" id="email" name="email" required
+          class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      </div>
+      <div>
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" name="password" required
+          class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      </div>
+      <button type="submit"
+        class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">Login</button>
+    </form>
+  </div>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const data = {
+        email: form.email.value,
+        password: form.password.value,
+      };
+
+      try {
+        const response = await fetch("/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          showToast(result.error || "Login failed", "error");
+          return;
+        }
+
+        showToast(result.message, "success");
+
+        setTimeout(() => {
+          window.location.href = result.redirect;
+        }, 1000);
+      } catch (err) {
+        console.error(err);
+        showToast("Something went wrong", "error");
+      }
+    });
+
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+
+      toast.className =
+        "fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300";
+      toast.classList.add(
+        type === "error" ? "bg-red-600" : "bg-green-600",
+        "opacity-100"
+      );
+
+      toast.classList.remove("hidden");
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0");
+        setTimeout(() => {
+          toast.classList.add("hidden");
+        }, 300);
+      }, 3000);
+    }
+  </script>
+
+  </div>
+
+
+  <div id="toast"
+    class="fixed top-4 right-4 z-50 hidden p-4 rounded-lg shadow-lg text-white bg-green-600 transition-opacity duration-300">
+  </div>
+</body>
+
+</html>
