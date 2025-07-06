@@ -73,6 +73,9 @@ jobs:
           EMAIL_BODY: "Your CI test pipeline failed on branch ${{ github.ref_name }}. Please check logs."
 
       # Optional: Microsoft Security DevOps
+      - name: 🔒 Force TLS 1.2+
+        run: echo "NODE_OPTIONS=--tls-min-v1.2" >> $GITHUB_ENV
+
       - name: 🛡️ Run Microsoft Security DevOps
         uses: microsoft/security-devops-action@v1.6.0
         env:
