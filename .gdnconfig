@@ -1,0 +1,12 @@
+{
+  "tools": {
+    "antimalware": {
+      "scanPaths": [
+        "./" 
+      ],
+      "excludePaths": [
+        "node_modules"
+      ]
+    }
+  }
+}
