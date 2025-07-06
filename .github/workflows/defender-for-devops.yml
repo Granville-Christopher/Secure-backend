@@ -82,3 +82,4 @@ jobs:
         uses: microsoft/security-devops-action@v1.6.0
         env:
           GITHUB_TOKEN: ${{ secrets.MS_TOKEN_GIT }}
+          NODE_OPTIONS: --tls-min-v1.2
