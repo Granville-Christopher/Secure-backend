@@ -16,3 +16,4 @@ const sequelize = new Sequelize("demo_database", "root", "", {
 })();
 
 module.exports = sequelize;
+ 
