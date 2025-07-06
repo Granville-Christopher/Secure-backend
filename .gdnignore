@@ -1,0 +1,2 @@
+# Ignore node_modules folder from Microsoft Security DevOps scans
+node_modules/
