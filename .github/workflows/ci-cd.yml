@@ -78,7 +78,7 @@ jobs:
         if: success()
         run: |
           npm install nodemailer
-          node scripts/send-email.js
+          node config/send-nodemail.js
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
@@ -90,7 +90,8 @@ jobs:
         if: failure()
         run: |
           npm install nodemailer
-          node scripts/send-email.js
+          node config/send-nodemail.js
+
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
